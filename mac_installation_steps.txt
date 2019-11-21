@@ -1,0 +1,30 @@
+Successful brew installations:
+a) brew install cairo
+b) brew install pygobject3
+c) brew install libffi
+d) brew install gtk+3
+e) brew install gtksourceview3
+
+Successful Pip installations:
+i) pip install pycairo
+ii) Run the command: export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig" and pip install PyGObject
+
+
+After installing libffi, ran the following command in bashrc.
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/usr/local/opt/libffi/lib/pkgconfig"
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig" pip install PyGObject
+
+icu4c is keg-only, which means it was not symlinked into /usr/local,
+because macOS provides libicucore.dylib (but nothing else).
+
+If you need to have icu4c first in your PATH run:
+  echo 'export PATH="/usr/local/opt/icu4c/bin:$PATH"' >> ~/.zshrc
+  echo 'export PATH="/usr/local/opt/icu4c/sbin:$PATH"' >> ~/.zshrc
+
+For compilers to find icu4c you may need to set:
+  export LDFLAGS="-L/usr/local/opt/icu4c/lib"
+  export CPPFLAGS="-I/usr/local/opt/icu4c/include"
+
+For pkg-config to find icu4c you may need to set:
+  export PKG_CONFIG_PATH="/usr/local/opt/icu4c/lib/pkgconfig"
