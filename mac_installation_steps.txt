@@ -4,11 +4,12 @@ b) brew install pygobject3
 c) brew install libffi
 d) brew install gtk+3
 e) brew install gtksourceview3
+f) brew install librsvg
 
 Successful Pip installations:
 i) pip install pycairo
 ii) Run the command: export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig" and pip install PyGObject
-
+iii) pip install PyYAML
 
 After installing libffi, ran the following command in bashrc.
 export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
@@ -28,3 +29,14 @@ For compilers to find icu4c you may need to set:
 
 For pkg-config to find icu4c you may need to set:
   export PKG_CONFIG_PATH="/usr/local/opt/icu4c/lib/pkgconfig"
+
+
+  --Provide local information:
+
+  echo 'export LC_ALL=en_US.UTF-8' >> ~/.bash_profile
+  echo 'export LANG=en_US.UTF-8' >> ~/.bash_profile
+
+
+
+
+  brew install libsvg  --> libsvg-0.1.4_1.mojave.bottle.1.tar.gz
