@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------
 # Copyright (c) 2009  Jendrik Seipp
 #
@@ -24,15 +23,14 @@ import os
 import platform
 import subprocess
 import sys
-import webbrowser
 
 
-ENCODING = sys.getfilesystemencoding() or locale.getlocale()[1] or 'UTF-8'
+ENCODING = sys.getfilesystemencoding() or locale.getlocale()[1] or "UTF-8"
 LANGUAGE = locale.getdefaultlocale()[0]
-REMOTE_PROTOCOLS = ['http', 'ftp', 'irc']
+REMOTE_PROTOCOLS = ["http", "ftp", "irc"]
 
-IS_WIN = sys.platform.startswith('win')
-IS_MAC = (sys.platform == 'darwin')
+IS_WIN = sys.platform.startswith("win")
+IS_MAC = sys.platform == "darwin"
 
 
 def has_system_tray():
@@ -49,39 +47,41 @@ else:
     app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 if IS_WIN:
-    locale_dir = os.path.join(app_dir, 'share', 'locale')
+    locale_dir = os.path.join(app_dir, "share", "locale")
 else:
-    locale_dir = os.path.join(sys.prefix, 'share', 'locale')
+    locale_dir = os.path.join(sys.prefix, "share", "locale")
 
-image_dir = os.path.join(app_dir, 'images')
-frame_icon_dir = os.path.join(image_dir, 'rednotebook-icon')
-files_dir = os.path.join(app_dir, 'files')
+image_dir = os.path.join(app_dir, "images")
+frame_icon_dir = os.path.join(image_dir, "rednotebook-icon")
+files_dir = os.path.join(app_dir, "files")
 
-user_home_dir = os.path.expanduser('~')
+user_home_dir = os.path.expanduser("~")
 
 
 class Filenames(dict):
-    '''
+    """
     Dictionary for dirnames and filenames
-    '''
+    """
+
     def __init__(self, config):
         for key, value in globals().items():
             # Exclude "get_main_dir()"
-            if key.lower().endswith('dir') and isinstance(value, str):
+            if key.lower().endswith("dir") and isinstance(value, str):
                 value = os.path.abspath(value)
                 self[key] = value
                 setattr(self, key, value)
 
-        self.portable = bool(config.read('portable'))
+        self.portable = bool(config.read("portable"))
 
         self.journal_user_dir = self.get_user_dir(config)
 
         self.data_dir = self.default_data_dir
 
         # Assert that all dirs and files are in place so that logging can take start
-        make_directories([self.journal_user_dir, self.data_dir, self.template_dir,
-                          self.temp_dir])
-        make_files([(self.config_file, ''), (self.log_file, '')])
+        make_directories(
+            [self.journal_user_dir, self.data_dir, self.template_dir, self.temp_dir]
+        )
+        make_files([(self.config_file, ""), (self.log_file, "")])
 
         self.last_pic_dir = self.user_home_dir
         self.last_file_dir = self.user_home_dir
@@ -89,7 +89,7 @@ class Filenames(dict):
         self.forbidden_dirs = [user_home_dir, self.journal_user_dir]
 
     def get_user_dir(self, config):
-        custom = config.read('userDir')
+        custom = config.read("userDir")
 
         if custom:
             # If a custom user dir has been set,
@@ -100,9 +100,9 @@ class Filenames(dict):
             user_dir = custom
         else:
             if self.portable:
-                user_dir = os.path.join(self.app_dir, 'user')
+                user_dir = os.path.join(self.app_dir, "user")
             else:
-                user_dir = os.path.join(self.user_home_dir, '.rednotebook')
+                user_dir = os.path.join(self.user_home_dir, ".rednotebook")
 
         return user_dir
 
@@ -110,13 +110,13 @@ class Filenames(dict):
         return os.path.isdir(path) and os.path.abspath(path) not in self.forbidden_dirs
 
     def __getattribute__(self, attr):
-        user_paths = dict((
-            ('template_dir', 'templates'),
-            ('temp_dir', 'tmp'),
-            ('default_data_dir', 'data'),
-            ('config_file', 'configuration.cfg'),
-            ('log_file', 'rednotebook.log'),
-        ))
+        user_paths = {
+            "template_dir": "templates",
+            "temp_dir": "tmp",
+            "default_data_dir": "data",
+            "config_file": "configuration.cfg",
+            "log_file": "rednotebook.log",
+        }
 
         if attr in user_paths:
             return os.path.join(self.journal_user_dir, user_paths.get(attr))
@@ -130,23 +130,23 @@ def read_file(filename):
     Return empty string if an error is encountered.
     """
     try:
-        with codecs.open(filename, 'rb', encoding='utf-8', errors='replace') as file:
+        with codecs.open(filename, "rb", encoding="utf-8", errors="replace") as file:
             data = file.read()
             return data
     except ValueError as err:
         logging.info(err)
     except Exception as err:
         logging.error(err)
-    return ''
+    return ""
 
 
 def write_file(filename, content):
     assert os.path.isabs(filename)
     try:
-        with codecs.open(filename, 'wb', errors='replace', encoding='utf-8') as file:
+        with codecs.open(filename, "wb", errors="replace", encoding="utf-8") as file:
             file.write(content)
-    except IOError as e:
-        logging.error('Error while writing to "%s": %s' % (filename, e))
+    except OSError as e:
+        logging.error('Error while writing to "{}": {}'.format(filename, e))
 
 
 def make_directory(dir):
@@ -159,7 +159,7 @@ def make_directories(dirs):
         make_directory(dir)
 
 
-def make_file(file, content=''):
+def make_file(file, content=""):
     if not os.path.isfile(file):
         write_file(file, content)
 
@@ -176,9 +176,9 @@ def make_file_with_dir(file, content):
 
 
 def get_relative_path(from_dir, to_dir):
-    '''
+    """
     Try getting the relative path from from_dir to to_dir
-    '''
+    """
     # If the data is saved on two different windows partitions,
     # return absolute path to to_dir.
     # drive1 and drive2 are always empty strings on Unix.
@@ -191,9 +191,9 @@ def get_relative_path(from_dir, to_dir):
 
 
 def get_journal_title(dir):
-    '''
+    """
     returns the last dirname in path
-    '''
+    """
     dir = os.path.abspath(dir)
     # Remove double slashes and last slash
     dir = os.path.normpath(dir)
@@ -209,99 +209,42 @@ def get_platform_info():
     import yaml
 
     functions = [
-        platform.machine, platform.platform, platform.processor,
-        platform.python_version, platform.release, platform.system
+        platform.machine,
+        platform.platform,
+        platform.processor,
+        platform.python_version,
+        platform.release,
+        platform.system,
     ]
     names_values = [(func.__name__, func()) for func in functions]
 
-    names_values.extend([
-        ('GTK', (Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())),
-        ('Glib', GObject.glib_version),
-        ('PyGObject', GObject.pygobject_version),
-        ('YAML', yaml.__version__),
-        ])
+    names_values.extend(
+        [
+            (
+                "GTK",
+                (
+                    Gtk.get_major_version(),
+                    Gtk.get_minor_version(),
+                    Gtk.get_micro_version(),
+                ),
+            ),
+            ("Glib", GObject.glib_version),
+            ("PyGObject", GObject.pygobject_version),
+            ("YAML", yaml.__version__),
+        ]
+    )
 
-    vals = ['%s: %s' % (name, val) for name, val in names_values]
-    return 'System info: ' + ', '.join(vals)
+    vals = ["{}: {}".format(name, val) for name, val in names_values]
+    return "System info: " + ", ".join(vals)
 
 
 def system_call(args):
-    '''
+    """
     Asynchronous system call
 
     subprocess.call runs synchronously
-    '''
+    """
     subprocess.Popen(args)
-
-
-def get_local_url(url):
-    '''
-    Sanitize url, make it absolute and normalize it, then add file://(/) scheme
-
-    Links and images only work in webkit on windows if the files have
-    file:/// (3 slashes) in front of the filename.
-    Strangely when clicking a link that has two slashes (file://C:\file.ext),
-    webkit returns the path file://C/file.ext .
-    '''
-    orig_url = url
-    if url.startswith('file:///') and IS_WIN:
-        url = url.replace('file:///', '')
-    if url.startswith('file://'):
-        url = url.replace('file://', '')
-    url = os.path.normpath(url)
-
-    scheme = 'file:///' if IS_WIN else 'file://'
-    url = scheme + url
-    logging.debug('Transformed local URI %s to %s' % (orig_url, url))
-    return url
-
-
-def open_url_in_browser(url):
-    try:
-        logging.info('Trying to open %s with webbrowser' % url)
-        webbrowser.open(url)
-    except webbrowser.Error:
-        logging.exception('Failed to open web browser')
-
-
-def unquote_url(url):
-    import urllib.parse
-    return urllib.parse.unquote(url)
-
-
-def _open_url_with_call(url, prog):
-    try:
-        logging.info('Trying to open %s with %s' % (url, prog))
-        system_call([prog, url])
-    except (OSError, subprocess.CalledProcessError):
-        logging.exception('Opening %s with %s failed' % (url, prog))
-        # If everything failed, try the webbrowser
-        open_url_in_browser(url)
-
-
-def open_url(url):
-    '''
-    Opens a file with the platform's preferred method
-    '''
-    if url.lower().startswith('http'):
-        open_url_in_browser(url)
-        return
-
-    # Try opening the file locally
-    if IS_WIN:
-        try:
-            url = unquote_url(url)
-            if url.startswith('file:') or os.path.exists(url):
-                url = get_local_url(url)
-            logging.info('Trying to open %s with "os.startfile"' % url)
-            # os.startfile is only available on windows
-            os.startfile(url)
-        except OSError:
-            logging.exception('Opening %s with "os.startfile" failed' % url)
-    elif sys.platform == 'darwin':
-        _open_url_with_call(url, 'open')
-    else:
-        _open_url_with_call(url, 'xdg-open')
 
 
 def get_peak_memory_in_kb():
@@ -312,6 +255,6 @@ def get_peak_memory_in_kb():
                 parts = line.split()
                 if parts[0] == "VmPeak:":
                     return int(parts[1])
-    except IOError:
+    except OSError:
         pass
     raise Warning("warning: could not determine peak memory")
