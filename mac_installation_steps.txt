@@ -40,3 +40,6 @@ For pkg-config to find icu4c you may need to set:
 
 
   brew install libsvg  --> libsvg-0.1.4_1.mojave.bottle.1.tar.gz
+
+There is a virtualenv running on Python 3.6.0
+Activate the virtualenv then call the script ./rednotebook
