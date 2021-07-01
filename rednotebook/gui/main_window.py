@@ -17,6 +17,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # -----------------------------------------------------------------------
 
+import gi
+
+gi.require_version('Gdk', '3.0')
+# gi.require_version('WebKit2', '4.0')
+
+# from gi.repository import WebKit2
+
 from collections import OrderedDict
 import datetime
 import logging
@@ -48,6 +55,11 @@ from rednotebook.gui import search
 from rednotebook.gui import editor
 from rednotebook.gui import insert_menu
 from rednotebook.gui import format_menu
+
+# import gi
+#
+# gi.require_version('Gdk', '3.0')
+# gi.require_version('WebKit2', '4.0')
 
 
 class MainWindow:
@@ -81,6 +93,7 @@ class MainWindow:
         # Get the main window and set the icon
         self.main_frame = self.builder.get_object('main_frame')
         self.main_frame.set_title('RedNotebook')
+        # import pdb; pdb.set_trace()
         icon = GdkPixbuf.Pixbuf.new_from_file(
             os.path.join(filesystem.frame_icon_dir, 'rednotebook.svg'))
         self.main_frame.set_icon(icon)

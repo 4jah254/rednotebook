@@ -5,6 +5,7 @@ c) brew install libffi
 d) brew install gtk+3
 e) brew install gtksourceview3
 f) brew install librsvg
+g)
 
 Successful Pip installations:
 i) pip install pycairo
@@ -43,3 +44,22 @@ For pkg-config to find icu4c you may need to set:
 
 There is a virtualenv running on Python 3.6.0
 Activate the virtualenv then call the script ./rednotebook
+
+pip install PyGObject-stubs (This is a dev environment library)
+
+
+==> libffi
+libffi is keg-only, which means it was not symlinked into /usr/local,
+because macOS already provides this software and installing another version in
+parallel can cause all kinds of trouble.
+
+For compilers to find libffi you may need to set:
+  export LDFLAGS="-L/usr/local/opt/libffi/lib"
+  export CPPFLAGS="-I/usr/local/opt/libffi/include"
+
+For pkg-config to find libffi you may need to set:
+  export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+
+
+brew tap jcudit/homebrew-webkitgtk
+brew install --HEAD jcudit/webkitgtk/webkitgtk or brew install webkitgtk
