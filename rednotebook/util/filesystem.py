@@ -32,6 +32,8 @@ REMOTE_PROTOCOLS = ["http", "ftp", "irc"]
 IS_WIN = sys.platform.startswith("win")
 IS_MAC = sys.platform == "darwin"
 
+LOCAL_FILE_PEFIX = "file:///" if IS_WIN else "file://"
+
 
 def has_system_tray():
     return IS_WIN  # A smarter detection is needed here ;)
@@ -46,7 +48,7 @@ if main_is_frozen():
 else:
     app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-if IS_WIN:
+if main_is_frozen():
     locale_dir = os.path.join(app_dir, "share", "locale")
 else:
     locale_dir = os.path.join(sys.prefix, "share", "locale")
@@ -146,7 +148,7 @@ def write_file(filename, content):
         with codecs.open(filename, "wb", errors="replace", encoding="utf-8") as file:
             file.write(content)
     except OSError as e:
-        logging.error('Error while writing to "{}": {}'.format(filename, e))
+        logging.error(f'Error while writing to "{filename}": {e}')
 
 
 def make_directory(dir):
@@ -204,8 +206,7 @@ def get_journal_title(dir):
 
 
 def get_platform_info():
-    from gi.repository import GObject
-    from gi.repository import Gtk
+    from gi.repository import GObject, Gtk
     import yaml
 
     functions = [
@@ -234,7 +235,7 @@ def get_platform_info():
         ]
     )
 
-    vals = ["{}: {}".format(name, val) for name, val in names_values]
+    vals = [f"{name}: {val}" for name, val in names_values]
     return "System info: " + ", ".join(vals)
 
 

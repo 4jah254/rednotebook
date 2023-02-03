@@ -94,7 +94,7 @@ etc.
 
 **Macros**:
 
-When a template is inserted, every occurence of $date$ is converted to \
+When a template is inserted, every occurrence of $date$ is converted to \
 the current date. You can set the date format in the preferences.
 
 There is even more markup that you can put into your templates. Have a look at
@@ -204,7 +204,7 @@ class TemplateInfo(Gtk.InfoBar):
         vbox.pack_start(title_label, False, False, 0)
         vbox.pack_start(msg_label, False, False, 0)
 
-        image = Gtk.Image.new_from_stock(Gtk.STOCK_DIALOG_INFO, Gtk.IconSize.DIALOG)
+        image = Gtk.Image.new_from_icon_name("edit-paste", Gtk.IconSize.DIALOG)
 
         content = self.get_content_area()
         content.pack_start(image, False, False, 0)
@@ -320,8 +320,8 @@ class TemplateManager:
     def on_new_template(self, action):
         dialog = Gtk.Dialog(_("Choose Template Name"))
         dialog.set_transient_for(self.main_window.main_frame)
-        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dialog.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        dialog.add_button("_OK", Gtk.ResponseType.OK)
         dialog.set_response_sensitive(Gtk.ResponseType.OK, False)
 
         # Let user finish by hitting ENTER.
@@ -357,7 +357,7 @@ class TemplateManager:
     def get_text(self, title):
         text = filesystem.read_file(self.get_path(title))
 
-        # An Error occured
+        # An Error occurred
         if not text:
             text = _("This template file contains no text or has unreadable content.")
         return text
@@ -420,7 +420,7 @@ class TemplateManager:
         actions.append(
             (
                 "EditWeekday",
-                Gtk.STOCK_HOME,
+                None,
                 _("This Weekday's Template"),
                 None,
                 None,
@@ -431,7 +431,7 @@ class TemplateManager:
         actions.append(
             (
                 "NewTemplate",
-                Gtk.STOCK_NEW,
+                None,
                 _("Create New Template"),
                 None,
                 None,
@@ -475,7 +475,7 @@ class TemplateManager:
         files.append((self.get_path("Help"), help_text))
 
         # Only add the example templates the first time and just restore
-        # the day templates everytime
+        # the day templates every time
         if self.main_window.journal.is_first_start:
             files.append((self.get_path("Meeting"), meeting))
             files.append((self.get_path("Journey"), journey))

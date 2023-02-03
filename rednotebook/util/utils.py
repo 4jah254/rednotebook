@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------
-# Copyright (c) 2009  Jendrik Seipp
+# Copyright (c) 2009-2022  Jendrik Seipp
 #
 # RedNotebook is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # -----------------------------------------------------------------------
 
-from distutils.version import StrictVersion
 import http.client
 import logging
 import os.path
@@ -71,7 +70,7 @@ def setup_signal_handlers(journal):
 
 
 def get_gtk_colors(widget):
-    """Retrieve colors of the currect GTK theme for the given widget.
+    """Retrieve colors of the current GTK theme for the given widget.
 
     The get_background_color() method is deprecated, but I couldn't find
     a different way for retrieving the color.
@@ -79,16 +78,16 @@ def get_gtk_colors(widget):
     style = widget.get_style_context()
     bg_color = style.get_background_color(Gtk.StateFlags.NORMAL).to_string()
     fg_color = style.get_color(Gtk.StateFlags.NORMAL).to_string()
-    logging.debug("Background color: {}".format(bg_color))
-    logging.debug("Foreground color: {}".format(fg_color))
+    logging.debug(f"Background color: {bg_color}")
+    logging.debug(f"Foreground color: {fg_color}")
     return bg_color, fg_color
 
 
 def get_new_version_number():
     """
-    Reads version number from website and returns None if it cannot be read
+    Read version number from website and return None if it cannot be read.
     """
-    version_pattern = re.compile(r"^version = '(.+)'$", flags=re.M)
+    version_pattern = re.compile(r'^version = "(.+)"$', flags=re.M)
 
     try:
         project_xml = urlopen(info.version_url).read()
@@ -100,8 +99,7 @@ def get_new_version_number():
     if not match:
         return None
     new_version = match.group(1)
-    new_version = StrictVersion(new_version)
-    logging.info("%s is the latest version" % new_version)
+    logging.info(f"Latest version: {new_version}")
     return new_version
 
 
@@ -142,12 +140,21 @@ def _show_update_dialog(journal, current_version, new_version, startup):
         journal.config["checkForNewVersion"] = 0
 
 
+def _get_version_tuple(version):
+    parts = [int(x) for x in version.strip(" .").split(".")]
+    assert len(parts) <= 3, parts
+    while len(parts) < 3:
+        parts.append(0)
+    return tuple(parts)
+
+
 def _check_new_version(journal, current_version, startup):
-    current_version = StrictVersion(current_version)
     new_version = get_new_version_number()
 
     if new_version is not None:
-        newer_version_available = new_version > current_version
+        newer_version_available = _get_version_tuple(new_version) > _get_version_tuple(
+            current_version
+        )
     else:
         logging.error("New version info could not be read")
         new_version = _("unknown")

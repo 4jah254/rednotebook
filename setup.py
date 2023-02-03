@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------
-# Copyright (c) 2009-2019  Jendrik Seipp
+# Copyright (c) 2009-2023  Jendrik Seipp
 #
 # RedNotebook is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,83 +17,58 @@
 # -----------------------------------------------------------------------
 
 """
-This is the install file for RedNotebook.
+This is the installation script for RedNotebook.
 
-To install the program, run "python setup.py install"
-To do a (test) installation to a different dir: "python setup.py install --root=test-dir"
-To only compile the translations, run "python setup.py build_trans"
+To install RedNotebook, run "pip install ." (note the dot).
 """
 
-from distutils import cmd
-from distutils.command.build import build as _build
-from distutils.command.install_data import install_data as _install_data
-from distutils.core import setup
-import glob
-import os
-import subprocess
+from pathlib import Path
+import shutil
 import sys
 
-DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, DIR)
+from setuptools import setup
+from setuptools.command.build_py import build_py as _build_py
+from setuptools.command.install import install as _install
+
+REPO = Path(__file__).resolve().parent
+sys.path.insert(0, str(REPO))
 
 from rednotebook import info
 
-
-MSGFMT = os.path.join(DIR, "rednotebook", "external", "msgfmt.py")
-
-
-def build_translation_files(po_dir, locale_dir):
-    assert os.path.isdir(po_dir), po_dir
-    for src in sorted(glob.glob(os.path.join(po_dir, "*.po"))):
-        lang, _ = os.path.splitext(os.path.basename(src))
-        dest = os.path.join(locale_dir, lang, "LC_MESSAGES", "rednotebook.mo")
-        dest_dir = os.path.dirname(dest)
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir)
-        print("Compiling {src} to {dest}".format(**locals()))
-        subprocess.check_call([sys.executable, MSGFMT, "--output-file", dest, src])
+from dev import build_translations
 
 
-class build_trans(cmd.Command):
-    """
-    Code taken from mussorgsky
-    (https://garage.maemo.org/plugins/ggit/browse.php/?p=mussorgsky;a=blob;f=setup.py;hb=HEAD)
-    """
+TMP_LOCALE_DIR = REPO / "build" / "locale"
 
-    description = "Compile .po files into .mo files"
-    user_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
+class build_py(_build_py):
     def run(self):
-        po_dir = os.path.join(os.path.dirname(os.curdir), "po")
-        dest_path = os.path.join("build", "locale")
-        build_translation_files(po_dir, dest_path)
+        build_translations.build_translation_files(REPO / "po", TMP_LOCALE_DIR)
+        _build_py.run(self)
 
 
-class build(_build):
-    sub_commands = _build.sub_commands + [("build_trans", None)]
+"""
+We use the deprecated install class since it provides the easiest way to install
+data files outside of a Python package. This feature is needed for the
+translation files, which must reside in <sys.prefix>/share/locale for the Glade
+file to pick them up.
 
+An alternative would be to build the translation files with a separate command,
+but that would require changing all package scripts for all distributions.
+"""
+
+
+class install(_install):
     def run(self):
-        _build.run(self)
-
-
-class install_data(_install_data):
-    def run(self):
-        for lang in os.listdir("build/locale/"):
-            lang_dir = os.path.join("share", "locale", lang, "LC_MESSAGES")
-            lang_file = os.path.join(
-                "build", "locale", lang, "LC_MESSAGES", "rednotebook.mo"
+        _install.run(self)
+        for lang_dir in TMP_LOCALE_DIR.iterdir():
+            lang = lang_dir.name
+            lang_file = TMP_LOCALE_DIR / lang / "LC_MESSAGES" / "rednotebook.mo"
+            dest_dir = (
+                Path(self.install_data) / "share" / "locale" / lang / "LC_MESSAGES"
             )
-            self.data_files.append((lang_dir, [lang_file]))
-        _install_data.run(self)
-
-
-cmdclass = {"build": build, "build_trans": build_trans, "install_data": install_data}
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(lang_file, dest_dir / "rednotebook.mo")
 
 
 parameters = {
@@ -109,6 +83,7 @@ parameters = {
     "url": info.url,
     "license": "GPL",
     "keywords": "journal, diary",
+    "cmdclass": {"build_py": build_py, "install": install},
     "scripts": ["rednotebook/rednotebook"],
     "packages": [
         "rednotebook",
@@ -135,7 +110,19 @@ parameters = {
         ),
         ("share/metainfo", ["data/rednotebook.appdata.xml"]),
     ],
-    "cmdclass": cmdclass,
+    "extras_require": {
+        "dev_style": [
+            "black==22.3.0",
+            "flake8==4.0.1",
+            "flake8-2020==1.6.0",
+            "flake8-bugbear==21.11.28",
+            "flake8-comprehensions==3.7.0",
+            "flake8-executable==2.1.1",
+            "isort==5.10.1",
+            "pyupgrade==2.32.0",
+            "vulture==1.6",
+        ],
+    },
 }
 
 if __name__ == "__main__":

@@ -57,19 +57,20 @@ MENUBAR_XML = """\
         <menuitem action="CheckSpelling"/>
         <menuitem action="Options"/>
     </menu>
-    %s
-    %s
+    {}
+    {}
     <menu action="HelpMenu">
         <menuitem action="Help"/>
         <separator/>
-        <menuitem action="OnlineHelp"/>
+        <menuitem action="GiveFeedback"/>
+        <menuitem action="Donate"/>
         <menuitem action="Translate"/>
         <menuitem action="ReportBug"/>
         <separator/>
         <menuitem action="Info"/>
     </menu>
 </menubar>
-</ui>""" % (
+</ui>""".format(
     insert_menu.MENUBAR_XML,
     format_menu.MENUBAR_XML,
 )
@@ -92,25 +93,25 @@ class MainMenuBar:
                 ("Journal", None, _("_Journal")),
                 (
                     "New",
-                    Gtk.STOCK_NEW,
                     None,
+                    _("New"),
                     "",
                     _("Create a new journal. The old one will be saved"),
                     self.on_new_journal_button_activate,
                 ),
                 (
                     "Open",
-                    Gtk.STOCK_OPEN,
                     None,
+                    _("Open"),
                     None,
                     _("Load an existing journal. The old journal will be saved"),
                     self.on_open_journal_button_activate,
                 ),
-                ("Save", Gtk.STOCK_SAVE, None, None, None, self.on_save_button_clicked),
+                ("Save", None, _("Save"), None, None, self.on_save_button_clicked),
                 (
                     "SaveAs",
-                    Gtk.STOCK_SAVE_AS,
                     None,
+                    _("Save As"),
                     None,
                     _(
                         "Save journal at a new location. The old journal files will also be saved"
@@ -120,7 +121,7 @@ class MainMenuBar:
                 # Translators: Verb
                 (
                     "Export",
-                    Gtk.STOCK_CONVERT,
+                    None,
                     _("Export"),
                     "<Ctrl>e",
                     _("Open the export assistant"),
@@ -129,7 +130,7 @@ class MainMenuBar:
                 # Translators: Verb
                 (
                     "Backup",
-                    Gtk.STOCK_HARDDISK,
+                    None,
                     _("_Backup"),
                     None,
                     _("Save all the data in a zip archive"),
@@ -145,8 +146,8 @@ class MainMenuBar:
                 ),
                 (
                     "Quit",
-                    Gtk.STOCK_QUIT,
                     None,
+                    _("Quit"),
                     None,
                     _("Shutdown RedNotebook. It will not be sent to the tray."),
                     self.main_window.on_quit_activate,
@@ -154,49 +155,49 @@ class MainMenuBar:
                 ("Edit", None, _("_Edit")),
                 (
                     "Undo",
-                    Gtk.STOCK_UNDO,
                     None,
+                    _("Undo"),
                     "<Ctrl>z",
                     _("Undo text or tag edits"),
                     self.on_undo,
                 ),
                 (
                     "Redo",
-                    Gtk.STOCK_REDO,
                     None,
+                    _("Redo"),
                     "<Ctrl>y",
                     _("Redo text or tag edits"),
                     self.on_redo,
                 ),
-                ("Cut", Gtk.STOCK_CUT, None, "", None, self.on_cut_menu_item_activate),
+                ("Cut", None, _("Cut"), "", None, self.on_cut_menu_item_activate),
                 (
                     "Copy",
-                    Gtk.STOCK_COPY,
                     None,
+                    _("Copy"),
                     "",
                     None,
                     self.on_copy_menu_item_activate,
                 ),
                 (
                     "Paste",
-                    Gtk.STOCK_PASTE,
                     None,
+                    _("Paste"),
                     "",
                     None,
                     self.on_paste_menu_item_activate,
                 ),
                 (
                     "Fullscreen",
-                    Gtk.STOCK_FULLSCREEN,
                     None,
+                    _("Fullscreen"),
                     "F11",
                     None,
                     self.on_fullscreen_menuitem_activate,
                 ),
                 (
                     "Find",
-                    Gtk.STOCK_FIND,
                     None,
+                    _("Find"),
                     None,
                     None,
                     self.on_find_menuitem_activate,
@@ -207,8 +208,8 @@ class MainMenuBar:
             [
                 (
                     "CheckSpelling",
-                    Gtk.STOCK_SPELL_CHECK,
                     None,
+                    _("Spell Check"),
                     "F7",
                     _("Underline misspelled words"),
                     self.on_checkspelling_menuitem_toggled,
@@ -219,8 +220,8 @@ class MainMenuBar:
             [
                 (
                     "Options",
-                    Gtk.STOCK_PREFERENCES,
                     None,
+                    _("Preferences"),
                     "<Ctrl><Alt>p",
                     None,
                     self.on_options_menuitem_activate,
@@ -228,26 +229,26 @@ class MainMenuBar:
                 ("HelpMenu", None, _("_Help")),
                 (
                     "Help",
-                    Gtk.STOCK_HELP,
+                    None,
                     _("Contents"),
                     "<Ctrl>h",
                     _("Open the RedNotebook documentation"),
                     self.on_help_menu_item_activate,
                 ),
                 (
-                    "OnlineHelp",
+                    "Donate",
                     None,
-                    _("Get Help Online"),
+                    _("Donate"),
                     None,
-                    _("Browse answered questions or ask a new one"),
-                    self.on_online_help,
+                    _("Support RedNotebook with a donation"),
+                    self.on_donate,
                 ),
                 (
                     "Translate",
                     None,
                     _("Translate RedNotebook"),
                     None,
-                    _("Connect to the Launchpad website to help translate RedNotebook"),
+                    _("Help translate RedNotebook to your language"),
                     self.on_translate,
                 ),
                 (
@@ -258,7 +259,15 @@ class MainMenuBar:
                     _("Fill out a short form about the problem"),
                     self.on_report_bug,
                 ),
-                ("Info", Gtk.STOCK_ABOUT, None, None, None, self.on_info_activate),
+                (
+                    "GiveFeedback",
+                    None,
+                    _("Give Feedback"),
+                    None,
+                    _("How can we improve RedNotebook?"),
+                    self.on_give_feedback,
+                ),
+                ("Info", None, _("About"), None, None, self.on_info_activate),
             ]
         )
         return actiongroup
@@ -401,14 +410,17 @@ class MainMenuBar:
         )
         utils.show_html_in_browser(html, os.path.join(temp_dir, "help.html"))
 
-    def on_online_help(self, widget):
-        webbrowser.open(info.answers_url)
+    def on_donate(self, widget):
+        webbrowser.open(info.donation_url)
 
     def on_translate(self, widget):
         webbrowser.open(info.translation_url)
 
     def on_report_bug(self, widget):
         webbrowser.open(info.bug_url)
+
+    def on_give_feedback(self, widget):
+        webbrowser.open(info.discussion_url)
 
     def on_info_activate(self, widget):
         self.info_dialog = self.main_window.builder.get_object("about_dialog")

@@ -75,7 +75,7 @@ class FormatMenu:
             if iter_:
                 markup = self.FORMAT_TO_MARKUP[format_]
                 text = self.main_window.categories_tree_view.get_iter_value(iter_)
-                text = "{}{}{}".format(markup, text, markup)
+                text = f"{markup}{text}{markup}"
                 self.main_window.categories_tree_view.set_iter_value(iter_, text)
             else:
                 self.main_window.day_text_field.apply_format(format_)
@@ -88,7 +88,7 @@ class FormatMenu:
         actions = [
             (
                 "Bold",
-                Gtk.STOCK_BOLD,
+                None,
                 _("Bold") + shortcut("B"),
                 "<Control>B",
                 None,
@@ -96,7 +96,7 @@ class FormatMenu:
             ),
             (
                 "Italic",
-                Gtk.STOCK_ITALIC,
+                None,
                 _("Italic") + shortcut("I"),
                 "<Control>I",
                 None,
@@ -112,7 +112,7 @@ class FormatMenu:
             ),
             (
                 "Underline",
-                Gtk.STOCK_UNDERLINE,
+                None,
                 _("Underline") + shortcut("U"),
                 "<Control>U",
                 None,
@@ -120,7 +120,7 @@ class FormatMenu:
             ),
             (
                 "Strikethrough",
-                Gtk.STOCK_STRIKETHROUGH,
+                None,
                 _("Strikethrough") + shortcut("K"),
                 "<Control>K",
                 None,
@@ -128,8 +128,8 @@ class FormatMenu:
             ),
             (
                 "Clear",
-                Gtk.STOCK_CLEAR,
-                _("Clear format") + shortcut("R"),
+                None,
+                _("Clear Format") + shortcut("R"),
                 "<Control>R",
                 None,
                 self.on_clear_format,
@@ -150,7 +150,7 @@ class FormatMenu:
         menu = uimanager.get_widget("/FormatMenu")
 
         self.main_window.format_button = customwidgets.ToolbarMenuButton(
-            Gtk.STOCK_BOLD, menu
+            "format-text-bold", menu
         )
         # Translators: Noun
         self.main_window.format_button.set_label(_("Format"))

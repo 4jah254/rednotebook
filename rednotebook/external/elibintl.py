@@ -413,7 +413,10 @@ def _install(domain, localedir, asglobal=False, libintl='intl'):
     '''
     # prep locale system
     if asglobal:
-        locale.setlocale(locale.LC_ALL, '')
+        try:
+            locale.setlocale(locale.LC_ALL, '')
+        except locale.Error as err:
+            logger.warning(f"Failed to set user-preferred locale settings: {err}")
 
         # on windows systems, set the LANGUAGE environment variable
         if sys.platform == 'win32' or sys.platform == 'nt':
@@ -428,7 +431,11 @@ def _install(domain, localedir, asglobal=False, libintl='intl'):
 
     # initialize Python's gettext interface
     gettext.bindtextdomain(domain, localedir)
-    gettext.bind_textdomain_codeset(domain, 'UTF-8')
+    # Function has been removed in Python 3.10. TODO: Check if the function can simply be omitted.
+    try:
+        gettext.bind_textdomain_codeset(domain, 'UTF-8')
+    except AttributeError:
+        pass
 
     if asglobal:
         gettext.textdomain(domain)

@@ -36,10 +36,12 @@ except ImportError:
 try:
     from yaml import CLoader as Loader
     from yaml import CSafeDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
 
-    logging.info("Using pyyaml for loading and dumping")
+    logging.info("Using LibYAML")
+except ImportError:
+    from yaml import Dumper, Loader
+
+    logging.info("Using PyYAML")
 
 
 def format_year_and_month(year, month):
@@ -78,12 +80,12 @@ def _load_month_from_disk(path, year_number, month_number):
             )
             return month
     except yaml.YAMLError as exc:
-        logging.error("Error in file {}:\n{}".format(path, exc))
+        logging.error(f"Error in file {path}:\n{exc}")
     except OSError:
         # If that fails, there is nothing to load, so just display an error message.
         logging.error("Error: The file %s could not be read" % path)
     except Exception:
-        logging.error("An error occured while reading %s:" % path)
+        logging.error("An error occurred while reading %s:" % path)
         raise
     # If we continued here, the possibly corrupted file would be overwritten.
     sys.exit(1)
@@ -106,22 +108,30 @@ def load_all_months_from_disk(data_dir):
     return months
 
 
-def _save_month_to_disk(month, journal_dir):
-    """
-    When overwriting 2014-12.txt:
-        write new content to 2014-12.new.txt
-        cp 2014-12.txt 2014-12.old.txt
-        mv 2014-12.new.txt 2014-12.txt
-        rm 2014-12.old.txt
-    """
+def _get_dict(month):
     content = {}
     for day_number, day in month.days.items():
         if not day.empty:
             content[day_number] = day.content
+    return content
+
+
+def _save_month_to_disk(month, journal_dir):
+    """
+    Return whether data was written to disk.
+
+    When overwriting 2014-12.txt:
+        write new content to 2014-12.new.txt
+        check that new file is valid month file
+        cp 2014-12.txt 2014-12.old.txt
+        mv 2014-12.new.txt 2014-12.txt
+        rm 2014-12.old.txt
+    """
+    content = _get_dict(month)
 
     def get_filename(infix):
         year_and_month = format_year_and_month(month.year_number, month.month_number)
-        return os.path.join(journal_dir, "{}{}.txt".format(year_and_month, infix))
+        return os.path.join(journal_dir, f"{year_and_month}{infix}.txt")
 
     old = get_filename(".old")
     new = get_filename(".new")
@@ -135,6 +145,15 @@ def _save_month_to_disk(month, journal_dir):
         # Write readable unicode and no Python directives.
         yaml.dump(content, f, Dumper=Dumper, allow_unicode=True)
 
+    # Check that month file was written to disk successfully.
+    written_month = _load_month_from_disk(new, month.year_number, month.month_number)
+    if _get_dict(written_month) != content:
+        try:
+            os.remove(new)
+        except OSError:
+            pass
+        raise OSError("writing month file to disk failed")
+
     if os.path.exists(filename):
         mtime = os.path.getmtime(filename)
         if mtime != month.mtime:
@@ -145,6 +164,9 @@ def _save_month_to_disk(month, journal_dir):
             )
             shutil.copy2(filename, conflict)
         shutil.copy2(filename, old)
+    # Prevent save failures on network and cloud drives.
+    if os.path.exists(filename):
+        os.remove(filename)
     shutil.move(new, filename)
     if os.path.exists(old):
         os.remove(old)

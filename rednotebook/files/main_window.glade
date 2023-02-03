@@ -35,6 +35,7 @@
   </object>
   <object class="GtkAccelGroup" id="accelgroup1"/>
   <object class="GtkFileChooserDialog" id="backup_dialog">
+    <property name="use_header_bar">0</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Select backup filename</property>
@@ -54,11 +55,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button4">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -68,13 +69,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button1">
-                <property name="label">gtk-save</property>
+                <property name="label" translatable="yes">_Save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -101,6 +102,7 @@
     </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="dir_chooser">
+    <property name="use_header_bar">0</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Select a directory</property>
@@ -121,11 +123,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button16">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -135,13 +137,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button17">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -177,6 +179,7 @@
     </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="file_chooser">
+    <property name="use_header_bar">0</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Select a file</property>
@@ -196,11 +199,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button13">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -210,13 +213,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button14">
-                <property name="label">gtk-open</property>
+                <property name="label" translatable="yes">Open</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -262,11 +265,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button15">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -276,13 +279,13 @@
             </child>
             <child>
               <object class="GtkButton" id="new_entry_dialog_o_k_button1">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -385,7 +388,7 @@
       <action-widget response="-5">new_entry_dialog_o_k_button1</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkWindow" id="main_frame">
+  <object class="GtkApplicationWindow" id="main_frame">
     <property name="can_focus">False</property>
     <signal name="configure-event" handler="on_main_frame_configure_event" swapped="no"/>
     <signal name="delete-event" handler="on_main_frame_delete_event" swapped="no"/>
@@ -412,7 +415,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Go to previous day (Ctrl+PageUp)</property>
-                        <property name="stock_id">gtk-go-back</property>
+                        <property name="label" translatable="yes">Back</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_name">go-previous</property>
                         <signal name="clicked" handler="on_back_one_day_button_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -427,7 +432,7 @@
                         <property name="tooltip_text" translatable="yes">Jump to today (Alt+Home)</property>
                         <property name="label" translatable="yes">Today</property>
                         <property name="use_underline">True</property>
-                        <property name="stock_id">gtk-home</property>
+                        <property name="icon_name">go-home</property>
                         <signal name="clicked" handler="on_today_button_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -440,7 +445,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Go to next day (Ctrl+PageDown)</property>
-                        <property name="stock_id">gtk-go-forward</property>
+                        <property name="label" translatable="yes">Forward</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_name">go-next</property>
                         <signal name="clicked" handler="on_forward_one_day_button_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -515,7 +522,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">Show a formatted preview of the text (Ctrl+P)</property>
                                 <property name="label" translatable="yes" comments="Verb">Preview</property>
-                                <property name="stock_id">gtk-media-play</property>
+                                <property name="icon_name">media-playback-start</property>
                                 <signal name="clicked" handler="on_preview_button_clicked" swapped="no"/>
                                 <accelerator key="P" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                               </object>
@@ -530,7 +537,7 @@
                                 <property name="tooltip_text" translatable="yes">Enable text editing (Ctrl+P)</property>
                                 <property name="label" translatable="yes">Edit</property>
                                 <property name="use_underline">True</property>
-                                <property name="stock_id">gtk-edit</property>
+                                <property name="icon_name">document-edit</property>
                                 <signal name="clicked" handler="on_edit_button_clicked" swapped="no"/>
                                 <accelerator key="p" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                               </object>
@@ -593,7 +600,7 @@
                                     <property name="tooltip_text" translatable="yes">Add a tag or a category entry</property>
                                     <property name="label" translatable="yes">Add Tag</property>
                                     <property name="use_underline">True</property>
-                                    <property name="stock_id">gtk-edit</property>
+                                    <property name="icon_name">document-edit</property>
                                     <signal name="clicked" handler="on_add_new_entry_button_clicked" swapped="no"/>
                                   </object>
                                   <packing>
@@ -705,11 +712,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button3">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -719,11 +726,11 @@
             </child>
             <child>
               <object class="GtkButton" id="new_entry_dialog_o_k_button">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -845,11 +852,11 @@
             </child>
             <child>
               <object class="GtkButton" id="button19">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -859,11 +866,11 @@
             </child>
             <child>
               <object class="GtkButton" id="button18">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -949,6 +956,7 @@
     </action-widgets>
   </object>
   <object class="GtkFileChooserDialog" id="picture_chooser">
+    <property name="use_header_bar">0</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Select a picture</property>
@@ -968,11 +976,11 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button10">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -982,13 +990,13 @@
             </child>
             <child>
               <object class="GtkButton" id="button12">
-                <property name="label">gtk-open</property>
+                <property name="label" translatable="yes">_Open</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1087,11 +1095,11 @@
             </child>
             <child>
               <object class="GtkButton" id="button21">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>

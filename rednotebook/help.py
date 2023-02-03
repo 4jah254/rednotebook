@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------
-# Copyright (c) 2009-2018  Jendrik Seipp
+# Copyright (c) 2009-2022  Jendrik Seipp
 #
 # RedNotebook is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,9 +16,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # -----------------------------------------------------------------------
 
+import builtins
+
 from rednotebook import info
 
 
+if not hasattr(builtins, "_"):
+
+    def _(string):
+        return string
+
+
+bug_url = info.bug_url
 commandline_help = info.get_commandline_parser().format_help()
 
 tags = _("Tags")
@@ -52,12 +61,14 @@ example_entry = _(
     'ultimate frisbee. Afterwards we watched "__Life of Brian__".'
 )
 
-templates = "Templates"
-temp1 = "RedNotebook supports templates."
-temp2 = 'Click on the arrow next to the "Template" button to see some options.'
-temp3 = """You can have one template for every day
+templates = _("Templates")
+temp1 = _("RedNotebook supports templates.")
+temp2 = _('Click on the arrow next to the "Template" button to see some options.')
+temp3 = _(
+    """You can have one template for every day
 of the week and unlimited arbitrarily named templates."""
-temp_par = " ".join([temp1, temp2, temp3])
+)
+temp_par = "\n".join([temp1, temp2, temp3])
 
 # Translators: both are verbs
 save = _("Save and Export")
@@ -69,11 +80,11 @@ save2 = _("To avoid data loss you should backup your journal regularly.")
 save3 = _('"Backup" in the "Journal" menu saves all your entered data in a zip file.')
 save4 = _('In the "Journal" menu you also find the "Export" button.')
 save5 = _('Click on "Export" and export your diary to Plain Text, PDF, HTML or Latex.')
-save_par = " ".join([save1, save2, save3, save4, save5])
+save_par = "\n".join([save1, save2, save3, save4, save5])
 
 error1 = _("If you encounter any errors, please drop me a note so I can fix them.")
 error2 = _("Any feedback is appreciated.")
-error_par = " ".join([error1, error2])
+error_par = "\n".join([error1, error2])
 
 goodbye_par = _("Have a nice day!")
 
@@ -103,9 +114,7 @@ multiple_entries_text = _(
     """\
 === Multiple entries ===
 You can add multiple entries to a single day by \
-using different journals (one named "Work", the other "Family"), \
-separating your entries with different titles (=== Work ===, === Family ===) \
-and using horizontal separator lines (20 "="s)."""
+separating your entries with different titles (=== Work ===, === Family ===)."""
 )
 
 multiple_entries_example = _(
@@ -264,12 +273,15 @@ menu.
 
 == Save ==
 
-%(save1)s %(save2)s %(save3)s
+%(save1)s
+%(save2)s
+%(save3)s
 
 
 == Export ==
 
-%(save4)s %(save5)s
+%(save4)s
+%(save5)s
 
 Since version 0.9.2 you can also directly export your journal to PDF.
 If the option does not show up in the export assistant, you need to
@@ -350,17 +362,6 @@ portable mode.
 
 To **activate portable mode**, change into the files/ directory and in
 the default.cfg file set portable=1.
-
-
-== Network drive ==
-
-Unfortunately, you cannot add links to files on network shares directly
-with the file selection dialog (this is due to a bug in GTK 2, it is
-fixed in GTK 3, but RedNotebook still uses GTK 2 [bug on launchpad
-""https://bugs.launchpad.net/ubuntu/+source/gtk+2.0/+bug/304345""]).
-However, it is possible to enter links directly, for example ``[U:
-""file:///U:/""]`` to reference the mapped drive letter [U
-""file:///U:/""].
 
 
 == Convert Latex output to PDF ==
@@ -469,6 +470,25 @@ gtk-theme-name=FlatStudioDark
 Finally, relaunch RedNotebook.
 
 
+Alternative 1: set GTK_THEME=FlatStudioDark in user environment variables.
+This overrides the theme set in ``settings.ini`` and persists even after
+reinstalling RedNotebook. However, this might change the theme of every GTK
+application on Windows.
+
+Alternative 2: set GTK_THEME=FlatStudioDark in the
+[application shortcut ""https://stackoverflow.com/a/34769146/1176315""] as follows:
+
+```
+C:\\Windows\\System32\\cmd.exe /c "SET GTK_THEME=FlatStudioDark&& ^
+START /D ^"C:\\Program Files (x86)\\RedNotebook^" rednotebook.exe"
+```
+
+Then set application to ``Run: Minimized`` (in application shortcut properties).
+This also overrides the theme set in ``settings.ini``. This won't affect any other
+app but it does change the shortcut icon to a cmd icon, as expected.
+
+
+
 == Tips ==
 %(multiple_entries_text)s
 
@@ -480,28 +500,27 @@ resides at $HOME/.rednotebook/configuration.cfg.
 
 === Language ===
 
-If you want to change RedNotebook's language, setting the environment
-variable LANG (Linux) or LANGUAGE (Windows) to a different language
-code should be sufficient. Language codes have e.g. the format "de_DE"
-or "de_DE.UTF-8" (German). To set the language to English you can also
-set the code to "C". Before you change the language make sure you have
-the required language packs installed. Otherwise an error will be
-shown.
+To change the language on **Linux**, use the environment
+variables LANGUAGE, LC_CTYPE and/or LC_TIME:
 
-On **Linux**, start a terminal and call ``LANG=de_DE.utf8``. Then in the
-same terminal, run ``rednotebook``. The language change will be gone
-however once you close the terminal.
+- LANGUAGE sets the language for the interface (i.e., text on buttons, menus, etc.).
+- LC_CTYPE sets the language for the spell checker.
+- LC_TIME sets the language for the date strings (weekday names, month names, etc.).
 
-On **Windows**, set or create a LANGUAGE environment variable with the
-desired code:
+
+The environment variable LC_ALL sets both LC_CTYPE and LC_TIME simultaneously.
+For example, to have a German interface, start a terminal and call
+``LANGUAGE=de_DE.utf8 rednotebook``.
+
+On **Windows**, set or create the LANGUAGE environment variable with the
+desired language code (e.g., de, de_DE or de_DE.UTF-8):
 
 + Right-click My Computer and click Properties.
 + In the System Properties window, click on the Advanced tab
   (Windows XP) or go to Advanced System Settings (Windows 7).
 + In the Advanced section, click the Environment Variables button.
-+ Click the New button and insert LANGUAGE at the top and e.g. de or
-  de_DE or de_DE.UTF-8 (use your [language code
-  ""http://en.wikipedia.org/wiki/ISO_639-1""]).
++ Click the New button and insert LANGUAGE at the top and your
+  [language code ""http://en.wikipedia.org/wiki/ISO_639-1""] at the bottom.
 
 
 === Titles ===
@@ -628,7 +647,7 @@ There is no software without bugs, so if you encounter one please drop
 me a note. This way RedNotebook can get better, not only for you, but
 for all users.
 
-Bug reports should go [here https://bugs.launchpad.net/rednotebook],
+Bug reports should go [here %(bug_url)s],
 but if you don't know how to use that site, a simple mail is equally
 fine.
 

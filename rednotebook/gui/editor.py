@@ -32,7 +32,11 @@ except ImportError:
     spellcheck = None
 
 
-DEFAULT_FONT = Gtk.Settings.get_default().get_property("gtk-font-name")
+try:
+    DEFAULT_FONT = Gtk.Settings.get_default().get_property("gtk-font-name")
+except AttributeError:
+    # Gtk.Settings.get_default() returns None on the CI systems without a screen.
+    DEFAULT_FONT = "Ubuntu 10"
 
 
 class Editor(GObject.GObject):
@@ -305,19 +309,19 @@ class Editor(GObject.GObject):
             _, ext = os.path.splitext(uri)
             return ext.lower().strip(".") in "png jpeg jpg gif eps bmp svg".split()
 
-        uris = selection.get_text().split()
-        logging.debug("Text: {}".format(selection.get_text()))
-        logging.debug("URIs: {}".format(uris))
+        uris = (selection.get_text() or "").split()
+        logging.debug(f"Text: {selection.get_text()}")
+        logging.debug(f"URIs: {uris}")
         for uri in uris:
             uri = uri.strip()
             uri = urllib.request.url2pathname(uri)
             dirs, filename = os.path.split(uri)
             uri_without_ext, ext = os.path.splitext(uri)
             if is_pic(uri):
-                self.insert('[""{}""{}]\n'.format(uri_without_ext, ext), iter)
+                self.insert(f'[""{uri_without_ext}""{ext}]\n', iter)
             else:
                 # It is always safer to add the "file://" protocol and the ""s
-                self.insert('[{} ""{}""]\n'.format(filename, uri), iter)
+                self.insert(f'[{filename} ""{uri}""]\n', iter)
 
         drag_context.finish(True, False, timestamp)
         # No further processing

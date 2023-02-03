@@ -125,7 +125,7 @@ class IntegerOption(Option):
         min_value=0,
         max_value=1000,
         increment=1,
-        **kwargs
+        **kwargs,
     ):
         Option.__init__(self, text, option_name, **kwargs)
 
@@ -401,7 +401,7 @@ class OptionsManager:
         for option in self.options:
             value = option.get_value()
             if option.option_name is not None:
-                logging.debug("Setting {} = {}".format(option.option_name, repr(value)))
+                logging.debug(f"Setting {option.option_name} = {repr(value)}")
                 self.config[option.option_name] = value
             else:
                 # We don't save the autostart setting in the config file

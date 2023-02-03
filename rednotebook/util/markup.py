@@ -19,9 +19,6 @@
 import logging
 import os
 import re
-import sys
-
-from gi.repository import GObject, Pango
 
 from rednotebook.data import HASHTAG
 from rednotebook.external import txt2tags
@@ -35,9 +32,7 @@ REGEX_HTML_LINK = r"<a.*?>(.*?)</a>"
 # pic [""/home/user/Desktop/RedNotebook pic"".png]
 PIC_NAME = r"\S.*?\S|\S"
 PIC_EXT = r"(?:png|jpe?g|gif|eps|bmp|svg)"
-REGEX_PIC = re.compile(
-    r'(\["")({})("")(\.{})(\?\d+)?(\])'.format(PIC_NAME, PIC_EXT), flags=re.I
-)
+REGEX_PIC = re.compile(rf'(\["")({PIC_NAME})("")(\.{PIC_EXT})(\?\d+)?(\])', flags=re.I)
 
 # named local link [my file.txt ""file:///home/user/my file.txt""]
 # named link in web [heise ""http://heise.de""]
@@ -108,30 +103,17 @@ CSS = """\
 
 # MathJax
 FORMULAS_SUPPORTED = True
-MATHJAX_FILE = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"
+MATHJAX_FILE = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
 
 # Explicitly setting inlineMath: [ ['\\(','\\)'] ] doesn't work.
 # Using defaults:
 #       displayMath: [ ['$$','$$'], ['\[','\]'] ]
 #       inlineMath:  [['\(','\)']]
 MATHJAX_DELIMITERS = ["$$", "\\(", "\\)", r"\\[", "\\]"]
-MATHJAX = """\
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({{
-    messageStyle: "none",
-    config: ["MMLorHTML.js"],
-    jax: ["input/TeX","input/MathML","output/HTML-CSS","output/NativeMML"],
-    tex2jax: {{}},
-    extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js"],
-    TeX: {{
-      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
-    }}
-  }});
-</script>
+MATHJAX = f"""\
+<!--MathJax included-->
 <script type="text/javascript" src="{MATHJAX_FILE}"></script>
-""".format(
-    **locals()
-)
+"""
 
 
 def convert_categories_to_markup(categories, with_category_title=True):
@@ -162,9 +144,9 @@ def get_markup_for_day(
         if target in ["xhtml", "html"]:
             # Following anchor will be used as a target for every entry reference mentioning
             # this entry's date.
-            export_string += "''<span id=\"{:%Y-%m-%d}\"></span>''\n".format(day.date)
+            export_string += f"''<span id=\"{day.date:%Y-%m-%d}\"></span>''\n"
 
-        export_string += "= {} =\n\n".format(date)
+        export_string += f"= {date} =\n\n"
 
     # Add text
     if with_text:
@@ -268,7 +250,7 @@ def _get_config(target, options):
         config["preproc"].append([r'\[""', r'["""'])
         config["preproc"].append([r'""\.', r'""".'])
 
-        scheme = "file:///" if sys.platform == "win32" else "file://"
+        scheme = filesystem.LOCAL_FILE_PEFIX
 
         # For images we have to omit the file:// prefix
         config["postproc"].append(
@@ -355,7 +337,7 @@ def _get_config(target, options):
 
     # Apply this prepoc only after the latex image quotes have been added
     config["preproc"].append(
-        [r"\[({}\.({}))\?(\d+)\]".format(img_name, img_ext), r"[WIDTH\3-\1]"]
+        [rf"\[({img_name}\.({img_ext}))\?(\d+)\]", r"[WIDTH\3-\1]"]
     )
 
     # Disable colors for all other targets.
@@ -367,6 +349,8 @@ def _get_config(target, options):
 
 
 def _convert_paths(txt, data_dir):
+    data_dir = str(data_dir)
+
     def _convert_uri(uri):
         path = uri[len("file://") :] if uri.startswith("file://") else uri
         # Check if relative file exists and convert it if it does.
@@ -405,6 +389,7 @@ def convert(txt, target, data_dir, headers=None, options=None):
     """
     Code partly taken from txt2tags tarball
     """
+    data_dir = str(data_dir)
     options = options or {}
 
     # Only add MathJax code if there is a formula.
@@ -441,7 +426,7 @@ def convert(txt, target, data_dir, headers=None, options=None):
         full_doc = headers + toc + body + footer
         finished = txt2tags.finish_him(full_doc, config)
         result = "\n".join(finished)
-    # Txt2tags error, show the messsage to the user
+    # Txt2tags error, show the message to the user
     except txt2tags.error as msg:
         logging.error(msg)
         result = msg
@@ -456,103 +441,3 @@ def convert(txt, target, data_dir, headers=None, options=None):
         )
         logging.error("Invalid markup:\n%s" % txt2tags.getUnknownErrorMessage())
     return result
-
-
-def convert_to_pango(txt, headers=None, options=None):
-    """
-    Code partly taken from txt2tags tarball
-    """
-    original_txt = txt
-
-    # Here is the marked body text, it must be a list.
-    txt = txt.split("\n")
-
-    # Set the three header fields
-    if headers is None:
-        headers = ["", "", ""]
-
-    config = txt2tags.ConfigMaster()._get_defaults()
-
-    config["outfile"] = txt2tags.MODULEOUT  # results as list
-    config["target"] = "xhtml"
-
-    config["preproc"] = []
-    # We need to escape the ampersand here, otherwise "&amp;" would become
-    # "&amp;amp;"
-    config["preproc"].append([r"&amp;", "&"])
-
-    # Allow line breaks
-    config["postproc"] = []
-    config["postproc"].append([REGEX_LINEBREAK, "\n"])
-
-    if options is not None:
-        config.update(options)
-
-    # Let's do the conversion
-    try:
-        body, toc = txt2tags.convert(txt, config)
-        full_doc = body
-        finished = txt2tags.finish_him(full_doc, config)
-        result = "".join(finished)
-
-    # Txt2tags error, show the messsage to the user
-    except txt2tags.error as msg:
-        logging.error(msg)
-        result = msg
-
-    # Unknown error, show the traceback to the user
-    except Exception:
-        result = txt2tags.getUnknownErrorMessage()
-        logging.error(result)
-
-    # remove unwanted paragraphs
-    result = result.replace("<p>", "").replace("</p>", "")
-
-    logging.log(
-        5,
-        'Converted "%s" text to "%s" txt2tags markup'
-        % (repr(original_txt), repr(result)),
-    )
-
-    # Remove unknown tags (<a>)
-    def replace_links(match):
-        """Return the link name."""
-        return match.group(1)
-
-    result = re.sub(REGEX_HTML_LINK, replace_links, result)
-
-    try:
-        Pango.parse_markup(result, -1, "0")
-        # result is valid pango markup, return the markup.
-        return result
-    except GObject.GError:
-        # There are unknown tags in the markup, return the original text
-        logging.debug("There are unknown tags in the markup: %s" % result)
-        return original_txt
-
-
-def convert_from_pango(pango_markup):
-    original_txt = pango_markup
-    replacements = {
-        "<b>": "**",
-        "</b>": "**",
-        "<i>": "//",
-        "</i>": "//",
-        "<s>": "--",
-        "</s>": "--",
-        "<u>": "__",
-        "</u>": "__",
-        "&amp;": "&",
-        "&lt;": "<",
-        "&gt;": ">",
-        "\n": r"\\",
-    }
-    for orig, repl in replacements.items():
-        pango_markup = pango_markup.replace(orig, repl)
-
-    logging.log(
-        5,
-        'Converted "%s" pango to "%s" txt2tags'
-        % (repr(original_txt), repr(pango_markup)),
-    )
-    return pango_markup

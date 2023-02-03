@@ -25,6 +25,7 @@ import urllib.parse
 
 from gi.repository import Gdk, GdkPixbuf, GObject, Gtk, GtkSource, Pango
 
+from rednotebook.gui.options import OptionsManager
 from rednotebook import info, templates
 from rednotebook.gui import (
     browser,
@@ -39,7 +40,6 @@ from rednotebook.gui import (
 from rednotebook.gui.customwidgets import CustomComboBoxEntry, CustomListView
 from rednotebook.gui.exports import ExportAssistant
 from rednotebook.gui.menu import MainMenuBar
-from rednotebook.gui.options import OptionsManager
 from rednotebook.util import dates, filesystem, markup, urls, utils
 
 
@@ -50,7 +50,6 @@ class MainWindow:
     """
 
     def __init__(self, journal):
-
         self.journal = journal
 
         # Load Glade file.
@@ -61,7 +60,7 @@ class MainWindow:
         # https://stackoverflow.com/q/10524196/434217
         GObject.type_register(GtkSource.View)
         if filesystem.IS_WIN:
-            import xml.etree.ElementTree as ET
+            from xml.etree import ElementTree as ET
 
             tree = ET.parse(self.gladefile)
             for node in tree.iter():
@@ -73,8 +72,8 @@ class MainWindow:
             self.builder.set_translation_domain("rednotebook")
             self.builder.add_from_file(self.gladefile)
 
-        # Get the main window and set the icon
         self.main_frame = self.builder.get_object("main_frame")
+        self.main_frame.set_application(journal)
         self.main_frame.set_title("RedNotebook")
         icon = GdkPixbuf.Pixbuf.new_from_file(
             os.path.join(filesystem.frame_icon_dir, "rn-128.png")
@@ -132,8 +131,8 @@ class MainWindow:
         self.edit_pane = self.builder.get_object("edit_pane")
         self.text_vbox = self.builder.get_object("text_vbox")
 
-        use_cef = True
-        if browser.WebKit2:
+        use_internal_preview = self.journal.config.read("useInternalPreview", 1)
+        if use_internal_preview and browser.WebKit2:
 
             class Preview(browser.HtmlView):
                 def __init__(self, journal):
@@ -155,9 +154,10 @@ class MainWindow:
             self.html_editor.connect("decide-policy", self.on_browser_decide_policy)
             self.text_vbox.pack_start(self.html_editor, True, True, 0)
             self.html_editor.set_editable(False)
-        elif browser_cef.cef and use_cef:
+        elif use_internal_preview and browser_cef.get_html_view_class():
+            HtmlView = browser_cef.get_html_view_class()
 
-            class Preview(browser_cef.HtmlView):
+            class Preview(HtmlView):
                 def __init__(self, journal):
                     super().__init__()
                     self.journal = journal
@@ -173,6 +173,9 @@ class MainWindow:
                     pass
 
             self.html_editor = Preview(self.journal)
+            self.html_editor.connect(
+                "on-url-clicked", lambda _, url: self.navigate_to_uri(url)
+            )
             self.text_vbox.pack_start(self.html_editor, True, True, 0)
         else:
             self.html_editor = mock.MagicMock()
@@ -324,13 +327,13 @@ class MainWindow:
             [
                 (
                     "Show",
-                    Gtk.STOCK_MEDIA_PLAY,
+                    None,
                     _("Show RedNotebook"),
                     None,
                     None,
                     lambda widget: self.show(),
                 ),
-                ("Quit", Gtk.STOCK_QUIT, None, None, None, self.on_quit_activate),
+                ("Quit", None, None, None, None, self.on_quit_activate),
             ]
         )
 
@@ -454,7 +457,7 @@ class MainWindow:
         else:
             date_format = self.journal.config.read("exportDateFormat")
             date_string = dates.format_date(date_format, self.day.date)
-            markup_string = markup.get_markup_for_day(self.day)
+            markup_string = markup.get_markup_for_day(self.day, "xhtml")
             html = self.journal.convert(
                 markup_string,
                 "xhtml",
@@ -550,17 +553,18 @@ class MainWindow:
             action = decision.get_navigation_action()
             if action.is_user_gesture():
                 uri = action.get_request().get_uri()
-                logging.info('Clicked URI "%s"' % uri)
-
-                if urls.is_entry_reference_uri(uri):
-                    self.navigate_to_referenced_entry(uri)
-                else:
-                    urls.open_url(uri)
-
+                self.navigate_to_uri(uri)
                 decision.ignore()
 
         # Stop processing this event.
         return True
+
+    def navigate_to_uri(self, uri):
+        logging.info('Navigating to URI "%s"' % uri)
+        if urls.is_entry_reference_uri(uri):
+            self.navigate_to_referenced_entry(uri)
+        else:
+            urls.open_url(uri)
 
     def navigate_to_referenced_entry(self, entry_reference_uri):
         entry_reference_uri = urllib.parse.urlparse(entry_reference_uri)
@@ -674,7 +678,7 @@ class MainWindow:
             self.template_button.set_menu(self.template_manager.get_menu())
 
         self.template_button = customwidgets.ToolbarMenuButton(
-            Gtk.STOCK_PASTE, self.template_manager.get_menu()
+            "edit-paste", self.template_manager.get_menu()
         )
         self.template_button.set_label(_("Template"))
         self.template_button.connect("clicked", update_menu)
@@ -924,7 +928,7 @@ class Statusbar:
 
     def show_message(self, title, msg, msg_type):
         if title and msg:
-            text = "{}: {}".format(title, msg)
+            text = f"{title}: {msg}"
         else:
             text = title or msg
         self._show_text(text)

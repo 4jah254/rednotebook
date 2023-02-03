@@ -1,22 +1,13 @@
 import datetime
+import os
 import sys
 
 import pytest
 
 from rednotebook.data import Day, Month
-from rednotebook.util.markup import (
-    _convert_paths,
-    convert,
-    convert_from_pango,
-    convert_to_pango,
-    get_markup_for_day,
-)
-
-
-def touch(path):
-    with open(path, "w") as f:
-        # Silence pyflakes.
-        assert f
+from rednotebook.util import filesystem
+from rednotebook.util.markup import _convert_paths, convert, get_markup_for_day
+from rednotebook.util.pango_markup import convert_from_pango, convert_to_pango
 
 
 @pytest.mark.parametrize(
@@ -45,17 +36,17 @@ def test_pango(t2t_markup, expected):
 
 def test_relative_path_conversion(tmp_path):
     for path in [tmp_path / f for f in ("rel.jpg", "rel.pdf")]:
-        touch(path)
-    tmp_path_uri = "file://" + str(tmp_path)
+        path.write_text("")  # Create empty file.
+    tmp_path_uri = filesystem.LOCAL_FILE_PEFIX + str(tmp_path) + os.sep + "rel"
 
     rel_paths = [
-        ('[""file://rel"".jpg]', '[""{}/rel"".jpg]'.format(tmp_path_uri)),
-        ('[""rel"".jpg]', '[""{}/rel"".jpg]'.format(tmp_path_uri)),
+        ('[""file://rel"".jpg]', f'[""{tmp_path_uri}"".jpg]'),
+        ('[""rel"".jpg]', f'[""{tmp_path_uri}"".jpg]'),
         (
             '[rel.pdf ""file://rel.pdf""]',
-            '[rel.pdf ""{}/rel.pdf""]'.format(tmp_path_uri),
+            f'[rel.pdf ""{tmp_path_uri}.pdf""]',
         ),
-        ('[rel.pdf ""rel.pdf""]', '[rel.pdf ""{}/rel.pdf""]'.format(tmp_path_uri)),
+        ('[rel.pdf ""rel.pdf""]', f'[rel.pdf ""{tmp_path_uri}.pdf""]'),
     ]
 
     for markup, expected in rel_paths:
@@ -65,9 +56,9 @@ def test_relative_path_conversion(tmp_path):
 def test_absolute_path_conversion(tmp_path):
     abs_paths = [
         '[""file:///abs"".jpg]',
-        '[""{}/aha 1"".jpg]'.format(tmp_path),
+        f'[""{tmp_path}/aha 1"".jpg]',
         '[abs.pdf ""file:///abs.pdf""]',
-        '[abs.pdf ""{}/abs.pdf""]'.format(tmp_path),
+        f'[abs.pdf ""{tmp_path}/abs.pdf""]',
         "www.google.com",
         "www.google.com/page.php",
     ]
@@ -230,11 +221,11 @@ class TestGetXHtmlExportConfig:
         markup = get_markup_for_day(day, "xhtml", date=date.strftime("%d-%m-%Y"))
         document = process(markup)
 
-        assert r'<span id="{:%Y-%m-%d}"></span>'.format(date) in document
+        assert rf'<span id="{date:%Y-%m-%d}"></span>' in document
 
     def test_mathjax(self, process):
         document = process("$$x^3$$")
-        assert r'<script type="text/x-mathjax-config">' in document
+        assert r"<!--MathJax included-->" in document
 
 
 class TestGetTexExportConfig:

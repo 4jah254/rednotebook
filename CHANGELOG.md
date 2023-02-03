@@ -1,6 +1,75 @@
-# next
+# 2.29.3 (2023-01-16)
+* Make all menu items translatable (Jendrik Seipp).
+* Packaging: install translation files under <prefix>/share/locale again (#666, Jendrik Seipp).
+
+# 2.29.2 (2023-01-13)
+* Fix `setup.py` script: only build translation files when needed (Jendrik Seipp).
+* Add continuous integration check to ensure that the basic Debian package builds correctly (Jendrik Seipp).
+
+# 2.29.1 (2023-01-12)
+* Remove bundled msgfmt.py module and use msgfmt binary from gettext suite instead. This fixes most of the translations on Windows (Jendrik Seipp).
+
+# 2.29 (2022-12-31)
+* Document alternatives for changing the GTK theme on Windows (Ankur A Sharma, #494).
+* Fix en_GB translations (Jendrik Seipp, #659).
+
+# 2.28.1 (2022-12-28)
+* Require `setuptools` for Debian package (Jendrik Seipp).
+
+# 2.28 (2022-12-28)
+* Remove code that uses the deprecated `distutils` module (Jendrik Seipp, #655, #656).
+* Fix checking for newer versions (Jendrik Seipp).
+* Gracefully handle unsupported locale settings (Jendrik Seipp, #613).
+
+# 2.27.2 (2022-12-01)
+* Fix passing command line arguments (Jendrik Seipp).
+* Update translation files (Jendrik Seipp).
+
+# 2.27.1 (2022-11-18)
+* Fix application ID for Flatpak (#650, Jendrik Seipp).
+
+# 2.27 (2022-11-16)
+* Upgrade to GTK 3.24 on Windows (Jendrik Seipp).
+* Use external preview on Windows since embedding the preview is impossible with newer GTK versions (Jendrik Seipp).
+* Use GtkApplication class and only allow running one RedNotebook instance at a time (Jendrik Seipp).
+* Add support for GtkSourceView 4 (Jendrik Seipp).
+* Raise minimum Python version to 3.6 (Jendrik Seipp).
+* Add more languages to Windows installer (Jendrik Seipp).
+
+# 2.26 (2022-09-28)
+* Fix issue #632 by skipping obsolete Python function (Jendrik Seipp).
+* Fix: only try to load CEF Python on Windows (Jendrik Seipp).
+* Update Turkish translation (sabriunal).
+
+# 2.25 (2022-05-16)
+* Use icon names instead of GTK stock icons to support newer GTK versions (Jendrik Seipp).
+* Handle several GTK deprecation warnings (Jendrik Seipp).
+
+# 2.24 (2022-02-21)
+* Revert to plain naming scheme for data files since reverse DNS naming causes problems (#611, Phil Wyett).
+
+# 2.23 (2022-02-13)
+* Check that a newly written month file is valid before deleting the old month file.
+* Rename "autostart" file. Please re-enable autostart option in preferences if you want RedNotebook to run on system startup.
+* Fix Python crash on program start (#583, Max Krummenacher).
+* Prevent save failures on network and cloud drives (#593, Robert Little).
+* Add script for importing entries (#571, Cary Gravel).
+* Revamp packaging for Debian (#599, #600, Phil Wyett).
+* Fix continuous integration tests.
+
+# 2.22 (2021-04-25)
+* Add a "Give Feedback" button (#551, Rahul Jha).
+* Test code on macOS (#552, Rahul Jha).
+
+# 2.21 (2020-12-07)
+* Update MathJax to version 3 (#515, @dgcampea).
+* Fix date references in CEF-based HtmlView (#544, Paweł Żukowski).
+
+# 2.20 (2020-08-03)
 * Fix drag and drop (#492, @dgcampea).
+* Fix external previews (Eric Chazan).
 * Document how to change the theme on Windows (#487, Ankur A. Sharma).
+* Allow symlinking to `./run` script (#509).
 
 # 2.19 (2020-05-04)
 * Reload GTK theme colors when saving the journal (#485).
@@ -457,7 +526,7 @@
 
 # 1.1.2 (10-12-26)
 * Add fullscreen mode (F11)
-* Highlight all found occurences of the searched word (LP:614353)
+* Highlight all found occurrences of the searched word (LP:614353)
 * Highlight mixed markups (**__Bold underline__**)
 * Highlight structured headers (=Part=, ==Subpart==, ===Section===, ====Subsection====, =====Subsubsection=====)
 * Document structured headers
@@ -662,7 +731,7 @@
 # 0.8.5 (2009-08-29)
 * Spell Checking (not for Windows)
   (Requires gtkspell for python. This is included in the python-gnome2-extras package)
-* When a template is inserted, every occurence of "$date$" is converted to the current date
+* When a template is inserted, every occurrence of "$date$" is converted to the current date
   (Set date format in preferences)
 * Open a specified journal from the command line
   (execute "rednotebook -h" for instructions)
@@ -768,7 +837,7 @@
 * Live update of clouds after categories have been edited
 
 # 0.6.9 (2009-05-05)
-* Reenable stricken text
+* Re-enable stricken text
 * Select individual categories to export
 * Export only text, or only categories, or both
 * Handle local file opening

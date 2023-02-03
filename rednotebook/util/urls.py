@@ -6,7 +6,7 @@ import sys
 import urllib.parse
 import webbrowser
 
-from rednotebook.util.filesystem import IS_WIN, system_call
+from rednotebook.util.filesystem import IS_WIN, LOCAL_FILE_PEFIX, system_call
 
 
 ENTRY_REFERENCE_URI_PATTERN = re.compile(r"^file:///#(?P<date>\d{4}-\d{2}-\d{2})$")
@@ -28,9 +28,8 @@ def get_local_url(url):
         url = url.replace("file://", "")
     url = os.path.normpath(url)
 
-    scheme = "file:///" if IS_WIN else "file://"
-    url = scheme + url
-    logging.debug("Transformed local URI {} to {}".format(orig_url, url))
+    url = LOCAL_FILE_PEFIX + url
+    logging.debug(f"Transformed local URI {orig_url} to {url}")
     return url
 
 
@@ -48,10 +47,10 @@ def unquote_url(url):
 
 def _open_url_with_call(url, prog):
     try:
-        logging.info("Trying to open {} with {}".format(url, prog))
+        logging.info(f"Trying to open {url} with {prog}")
         system_call([prog, url])
     except (OSError, subprocess.CalledProcessError):
-        logging.exception("Opening {} with {} failed".format(url, prog))
+        logging.exception(f"Opening {url} with {prog} failed")
         # If everything failed, try the webbrowser
         open_url_in_browser(url)
 
