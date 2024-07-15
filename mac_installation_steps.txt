@@ -1,3 +1,15 @@
+
+
+
+Start by creating a new virtual environment with Python 3.11.7
+
+`python3.11 -m venv .venv`
+
+Install the dependencies from the requirements.txt file
+
+`pip3.11 install -r requirements.txt`
+
+
 Successful brew installations:
 a) brew install cairo
 b) brew install pygobject3
@@ -5,13 +17,22 @@ c) brew install libffi
 d) brew install gtk+3
 e) brew install gtksourceview3
 f) brew install librsvg
-g)
 
 Successful Pip installations:
 i) pip install pycairo
-ii) Run the command: export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig" and pip install PyGObject
+ii) Run the command: export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig" and pip3.11 install PyGObject
 iii) pip install PyYAML
 iv) pip install PyGObject-stubs==0.0.8
+
+
+export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PYTHONPATH="/usr/local/lib/python3.10/site-packages:$PYTHONPATH"
+
+brew install cairo gobject-introspection
+
+pip install PyGObject --verbose
+
+
 
 After installing libffi, ran the following command in bashrc.
 export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
